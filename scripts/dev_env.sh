@@ -39,7 +39,8 @@ fi
 
 # Set default ROS2 configuration
 export ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
-export RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION:-rmw_cyclonedds_cpp}
+# Note: RMW_IMPLEMENTATION not set - uses ROS2 default (typically rmw_fastrtps_cpp)
+# To use a specific RMW: export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp (requires installation)
 
 # Set Rust logging (optional, can be overridden)
 export RUST_LOG=${RUST_LOG:-info}
@@ -47,7 +48,7 @@ export RUST_LOG=${RUST_LOG:-info}
 echo "✅ ROS2 Jazzy environment loaded successfully!"
 echo "   ROS_DISTRO: $ROS_DISTRO"
 echo "   ROS_VERSION: $ROS_VERSION"
-echo "   RMW_IMPLEMENTATION: $RMW_IMPLEMENTATION"
+echo "   RMW_IMPLEMENTATION: ${RMW_IMPLEMENTATION:-default}"
 echo "   RUST_LOG: $RUST_LOG"
 echo ""
 echo "🚀 Ready to build and run nodes:"
