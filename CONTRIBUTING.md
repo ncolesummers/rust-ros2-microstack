@@ -17,6 +17,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 ## Code of Conduct
 
 This project aims to be welcoming, inclusive, and educational. We expect all contributors to:
+
 - Be respectful and constructive in discussions
 - Focus on learning and teaching others
 - Provide clear explanations for design choices
@@ -30,11 +31,13 @@ This project aims to be welcoming, inclusive, and educational. We expect all con
 
 1. Complete the setup in [docs/setup.md](docs/setup.md)
 2. Verify you can build and test:
+
    ```bash
    source scripts/dev_env.sh
    cargo build --workspace
    cargo test
    ```
+
 3. Read the architecture docs: [docs/architecture.md](docs/architecture.md)
 
 ### Finding Work
@@ -56,6 +59,7 @@ cargo fmt --all
 ```
 
 **Check formatting** in CI:
+
 ```bash
 cargo fmt --all -- --check
 ```
@@ -94,6 +98,7 @@ This runs `cargo fmt` and `cargo clippy` before each commit, preventing CI failu
 ### Error Handling
 
 **Use `anyhow::Result` for application code**:
+
 ```rust
 use anyhow::{Context, Result};
 
@@ -108,23 +113,39 @@ fn run() -> Result<()> {
 
 ### Logging
 
-**Use `tracing` not `println!`**:
+**Use structured logging with `tracing`** (never `println!`):
 
 ```rust
+use rust_ros2_microstack::logging;
 use tracing::{info, warn, error, debug};
 
-info!("Node started");
-debug!(topic = %topic_name, "Subscribed to topic");
-warn!(timeout_ms = %timeout, "Heartbeat timeout");
-error!(error = %e, "Failed to publish");
+fn main() -> anyhow::Result<()> {
+    // Initialize logging (supports JSON, OTLP, and more)
+    logging::init();
+
+    info!("Node started");
+    debug!(topic = %topic_name, "Subscribed to topic");
+    warn!(timeout_ms = %timeout, "Heartbeat timeout");
+    error!(error = %e, "Failed to publish");
+
+    Ok(())
+}
 ```
 
 **Log Levels**:
+
 - `error`: Unrecoverable failures
 - `warn`: Recoverable issues (e.g., timeout detected)
 - `info`: Major state changes (e.g., node started)
 - `debug`: Detailed execution flow
 - `trace`: Very verbose (rarely needed)
+
+**For comprehensive documentation**, see [docs/logging.md](docs/logging.md) which covers:
+
+- Configuration via environment variables
+- Output formats (console, JSON, OpenTelemetry)
+- Distributed tracing with spans
+- Best practices and examples
 
 ---
 
@@ -141,11 +162,13 @@ Nodes should demonstrate a distinct ROS2 pattern or solve a real robotics proble
 ### Node Structure Decision
 
 **Binary crate (`apps/`)** if:
+
 - Meant to be run directly by end users
 - Has a CLI interface
 - Example: `teleop_mux`
 
 **Library crate (`nodes/`)** if:
+
 - Reusable logic that can be tested independently
 - May be used by multiple binaries
 - Example: `safety_watchdog`, `sensor_filter`
@@ -155,6 +178,7 @@ Nodes should demonstrate a distinct ROS2 pattern or solve a real robotics proble
 ### Step-by-Step: Adding a New Node
 
 1. **Create the crate**:
+
    ```bash
    # For library node
    cargo new --lib nodes/my_node
@@ -164,6 +188,7 @@ Nodes should demonstrate a distinct ROS2 pattern or solve a real robotics proble
    ```
 
 2. **Update workspace `Cargo.toml`**:
+
    ```toml
    [workspace]
    members = [
@@ -173,6 +198,7 @@ Nodes should demonstrate a distinct ROS2 pattern or solve a real robotics proble
    ```
 
 3. **Update node's `Cargo.toml`**:
+
    ```toml
    [package]
    name = "my_node"
@@ -189,6 +215,7 @@ Nodes should demonstrate a distinct ROS2 pattern or solve a real robotics proble
    ```
 
 4. **Add module-level documentation**:
+
    ```rust
    //! # My Node
    //!
@@ -205,6 +232,7 @@ Nodes should demonstrate a distinct ROS2 pattern or solve a real robotics proble
    ```
 
 5. **Implement with clear comments**:
+
    ```rust
    /// Creates the node and configures subscriptions/publishers.
    ///
@@ -220,6 +248,7 @@ Nodes should demonstrate a distinct ROS2 pattern or solve a real robotics proble
    ```
 
 6. **Add unit tests**:
+
    ```rust
    #[cfg(test)]
    mod tests {
@@ -260,6 +289,7 @@ Nodes should demonstrate a distinct ROS2 pattern or solve a real robotics proble
 **Coverage**: Core logic, message transformations, configuration parsing
 
 **Example**:
+
 ```rust
 #[cfg(test)]
 mod tests {
@@ -288,6 +318,7 @@ mod tests {
 **Purpose**: Test actual ROS2 message flow between nodes
 
 **Example**:
+
 ```rust
 // tests/integration/test_my_node.rs
 use r2r::{Context, Node};
@@ -314,6 +345,7 @@ async fn test_my_node_publishes() {
 **When required**: For performance-critical operations (e.g., sensor processing)
 
 **Example**:
+
 ```rust
 // benches/my_benchmark.rs
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
@@ -355,6 +387,7 @@ pub struct WatchdogNode {
 ```
 
 **Explain "why" not just "what"**:
+
 ```rust
 // ❌ Bad: States the obvious
 /// Sets the timeout.
@@ -385,6 +418,7 @@ let subscriber = node.create_subscription::<Empty>(
 ### Architecture Documentation
 
 **When adding significant features**, update:
+
 - [docs/architecture.md](docs/architecture.md) - Design decisions
 - [docs/nodes.md](docs/nodes.md) - Implementation patterns
 - [README.md](README.md) - User-facing overview
@@ -392,6 +426,7 @@ let subscriber = node.create_subscription::<Empty>(
 ### Examples Documentation
 
 **Standalone examples** should:
+
 - Be < 100 lines of code
 - Have extensive inline comments
 - Include a "What you'll learn" comment at the top
@@ -404,11 +439,13 @@ let subscriber = node.create_subscription::<Empty>(
 ### Before Submitting
 
 1. **Branch from `main`**:
+
    ```bash
    git checkout -b feature/my-feature
    ```
 
 2. **Write clear commit messages**:
+
    ```
    Add sensor_filter node with LaserScan clamping
 
@@ -420,6 +457,7 @@ let subscriber = node.create_subscription::<Empty>(
    ```
 
 3. **Run quality checks**:
+
    ```bash
    cargo fmt --all
    cargo clippy --workspace --all-targets -- -D warnings
@@ -436,6 +474,7 @@ let subscriber = node.create_subscription::<Empty>(
 ### Submitting
 
 1. **Push your branch**:
+
    ```bash
    git push origin feature/my-feature
    ```
