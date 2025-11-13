@@ -5,6 +5,7 @@ A guide to ROS2 concepts explained through a Rust lens. If you're coming from pu
 ## What is ROS2?
 
 **ROS2** (Robot Operating System 2) is a framework for building distributed robotics applications. Think of it as:
+
 - **Microservices for robots**: Nodes are independent processes communicating over a network
 - **Typed message passing**: Publishers and subscribers with schema-enforced messages
 - **Discovery-based**: Nodes find each other automatically (no central broker like Kafka)
@@ -16,6 +17,7 @@ Unlike Rust's ownership model (compile-time safety), ROS2 provides **runtime saf
 ### Nodes
 
 A **node** is an independent process or computation. In Rust terms:
+
 - Like a separate `tokio::task` or process
 - Has its own event loop
 - Communicates only via messages (no shared memory by default)
@@ -27,6 +29,7 @@ let mut node = r2r::Node::create(ctx, "my_node", "")?;
 ```
 
 **Why separate nodes?**
+
 - **Isolation**: Crash in one node doesn't kill the system
 - **Language agnostic**: Mix Rust, Python, C++ nodes
 - **Distributed**: Nodes can run on different machines
@@ -34,6 +37,7 @@ let mut node = r2r::Node::create(ctx, "my_node", "")?;
 ### Topics (Pub/Sub)
 
 **Topics** are named channels for asynchronous message passing. Similar to:
+
 - Rust's `tokio::sync::mpsc` but **network-wide**
 - Erlang's message passing
 - Go channels across processes
@@ -53,6 +57,7 @@ tokio::spawn(async move {
 ```
 
 **Key difference from Rust channels:**
+
 - **Many-to-many**: Multiple publishers, multiple subscribers
 - **Type-safe**: Message type enforced (like Rust generics)
 - **Discoverable**: No need to pass channel handles; subscribe by topic name
@@ -60,6 +65,7 @@ tokio::spawn(async move {
 ### Services (RPC)
 
 **Services** are request/response patterns. Like Rust's:
+
 - `async fn` with a return value
 - HTTP endpoints
 - tonic gRPC (but ROS2-native)
@@ -78,6 +84,7 @@ let response = client.request(&request).await?;
 ### Actions (Long-Running Tasks)
 
 **Actions** are for tasks with progress feedback. Similar to:
+
 - Rust's `Stream` of progress updates
 - Async iterators with cancellation
 - Tokio's `CancellationToken` + progress channel
@@ -87,6 +94,7 @@ let response = client.request(&request).await?;
 ### QoS (Quality of Service)
 
 **QoS** policies control message delivery guarantees. Rust doesn't have a direct equivalent, but think:
+
 - **Reliability**: TCP (reliable) vs UDP (best-effort)
 - **Durability**: Keep last N messages for late joiners (like a buffered channel)
 - **Liveliness**: Detect dead publishers
@@ -101,6 +109,7 @@ let response = client.request(&request).await?;
 | **Sensor Data** | Best Effort | 5 | Camera, IMU streams |
 
 **Example in r2r:**
+
 ```rust
 use r2r::QosProfile;
 
@@ -112,16 +121,19 @@ let qos = QosProfile::default(); // Usually reliable
 ```
 
 **Why it matters**: Mismatched QoS → subscribers won't connect!
+
 - Publisher: Reliable, Subscriber: Best Effort → ✗ No connection
 - Both Reliable or both Best Effort → ✓ Connected
 
 ### DDS (Data Distribution Service)
 
 **DDS** is the middleware ROS2 uses for discovery and transport. Think:
+
 - **mDNS + ZeroMQ**: Auto-discovery + message passing
 - **Under the hood**: You rarely interact with DDS directly
 
 **What Rust devs should know:**
+
 - DDS handles serialization (like `serde` but for network)
 - Discovery is automatic (no Consul/etcd needed)
 - Multiple vendors (CycloneDDS, FastDDS) - usually transparent
@@ -142,6 +154,7 @@ pub struct String {
 ```
 
 **Common message packages:**
+
 - `std_msgs`: Primitives (String, Int32, Bool, Header)
 - `geometry_msgs`: Poses, Twists, Transforms
 - `sensor_msgs`: LaserScan, Image, Imu
@@ -152,6 +165,7 @@ pub struct String {
 ## Clocks & Time
 
 ROS2 has **simulated time** for testing. In Rust terms:
+
 - Like `tokio::time::pause()` but system-wide
 - Gazebo publishes `/clock` → all nodes use sim time
 
@@ -165,6 +179,7 @@ let now = node.get_clock()?.now()?;
 ## Parameters
 
 **Parameters** are runtime configuration values. Like:
+
 - Environment variables
 - Config files (TOML/YAML)
 - But **dynamically reconfigurable** without restart
@@ -181,12 +196,14 @@ let timeout: i64 = node.get_parameter("timeout_ms")?;
 ```
 
 **When to use:**
+
 - Values that change between deployments (topic names, thresholds)
 - Avoid: Large data, secrets (use env vars or files instead)
 
 ## Lifecycle Nodes
 
 **Lifecycle nodes** have explicit state transitions. Similar to:
+
 - Finite state machines
 - Rust's typestate pattern
 - Managed startup/shutdown
@@ -198,6 +215,7 @@ let timeout: i64 = node.get_parameter("timeout_ms")?;
 ## Coordinate Frames (TF2)
 
 **TF2** manages coordinate transformations. Think:
+
 - 3D transform tree (parent-child relationships)
 - "Where is the camera relative to the robot base?"
 
@@ -226,6 +244,7 @@ let timeout: i64 = node.get_parameter("timeout_ms")?;
 ## Common Pitfalls
 
 **QoS Mismatch**
+
 ```rust
 // Publisher: reliable
 let pub = node.create_publisher::<String>("/topic", QosProfile::default())?;
@@ -236,6 +255,7 @@ let sub = node.create_subscription::<String>("/topic", QosProfile::best_effort()
 ```
 
 **Blocking in Callbacks**
+
 ```rust
 subscriber.for_each(|msg| {
     std::thread::sleep(Duration::from_secs(10)); // ❌ Blocks event loop!
@@ -244,6 +264,7 @@ subscriber.for_each(|msg| {
 ```
 
 **Forgetting to Spin**
+
 ```rust
 let mut node = r2r::Node::create(ctx, "my_node", "")?;
 let _sub = node.create_subscription::<String>("/topic", QosProfile::default())?;

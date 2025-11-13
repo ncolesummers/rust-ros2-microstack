@@ -88,10 +88,12 @@ loop {
 #### 2. QoS Configuration
 
 **Heartbeat Subscriber**: Best Effort
+
 - **Rationale**: Heartbeats are high-rate; missing one is acceptable (timeout triggers anyway)
 - **Trade-off**: Lower latency vs guaranteed delivery
 
 **Cmd Vel Publisher**: Reliable, Depth 10
+
 - **Rationale**: Critical commands must not be lost
 - **Depth 10**: Handles temporary subscriber lag without dropping messages
 
@@ -130,6 +132,7 @@ cargo run -p nodes/safety_watchdog -- \
 ```
 
 **Flags**:
+
 - `--heartbeat`: Topic name for heartbeat subscription
 - `--timeout-ms`: Timeout duration before publishing zero velocity
 - `--output`: Topic name for velocity command publication
@@ -137,6 +140,7 @@ cargo run -p nodes/safety_watchdog -- \
 ### Testing Strategies
 
 **Manual Test**:
+
 ```bash
 # Terminal 1: Start watchdog
 cargo run -p nodes/safety_watchdog -- --timeout-ms 200
@@ -151,6 +155,7 @@ ros2 topic echo /cmd_vel
 ```
 
 **Integration Test** (see `tests/integration/test_safety_watchdog.rs`):
+
 - Use `tokio::time::pause()` for deterministic async testing
 - Spawn watchdog in background task
 - Publish heartbeats, verify silence
@@ -266,6 +271,7 @@ struct Args {
 #### 3. QoS Consistency
 
 All topics use **Reliable, Depth 10**:
+
 - **Rationale**: Command velocities are critical; packet loss is unacceptable
 - **Depth 10**: Standard for command topics
 
@@ -289,6 +295,7 @@ cargo run -p apps/teleop_mux -- \
 ### Testing Strategies
 
 **Manual Test**:
+
 ```bash
 # Terminal 1: Start mux (teleop priority)
 cargo run -p apps/teleop_mux -- --priority teleop
@@ -308,6 +315,7 @@ ros2 topic echo /cmd_vel
 ```
 
 **Integration Test**:
+
 - Publish to both input topics
 - Verify output matches priority setting
 - Change priority, verify switch
@@ -315,10 +323,12 @@ ros2 topic echo /cmd_vel
 ### Design Considerations
 
 **State vs Stateless**:
+
 - **Stateless** (current): Publish immediately on receipt
 - **Stateful** (future): Track "recent" messages (e.g., last 100ms) and switch on timeout
 
 **Arbitration Strategies**:
+
 - **Priority** (current): Simple, explicit
 - **Timeout-based**: Favor teleop if active, fall back to nav
 - **Velocity-based**: Favor non-zero commands
@@ -434,6 +444,7 @@ cargo run -p nodes/sensor_filter -- \
 ```
 
 **Flags**:
+
 - `--input`: Input topic name
 - `--output`: Output topic name
 - `--min`: Minimum valid range (meters)
@@ -442,6 +453,7 @@ cargo run -p nodes/sensor_filter -- \
 ### Testing Strategies
 
 **Rosbag Test**:
+
 ```bash
 # Record real lidar data
 ros2 bag record /scan -o test_bag
@@ -455,6 +467,7 @@ ros2 topic echo /scan/filtered | head
 ```
 
 **Unit Test**:
+
 ```rust
 #[test]
 fn test_clamp_preserves_header() {
@@ -474,6 +487,7 @@ fn test_clamp_preserves_header() {
 ### Performance Considerations
 
 **Avoid Allocations**:
+
 ```rust
 // ❌ Slow: Creates new Vec
 scan.ranges = scan.ranges.iter().map(|&r| r.clamp(min, max)).collect();
@@ -483,6 +497,7 @@ scan.ranges.iter_mut().for_each(|r| *r = r.clamp(min, max));
 ```
 
 **SIMD Opportunities** (future):
+
 - Use `packed_simd` for vectorized clamping
 - Expected 4-8x speedup on large scans
 

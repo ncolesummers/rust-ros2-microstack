@@ -35,6 +35,7 @@ rust-ros2-microstack/
 ```
 
 **Why apps/ vs nodes/?**
+
 - `apps/` contains binaries meant to be run directly (e.g., `cargo run -p apps/teleop_mux`)
 - `nodes/` are libraries exposing node logic, allowing reuse and easier unit testing
 - This pattern separates interface (binary) from implementation (library)
@@ -173,6 +174,7 @@ bash scripts/bag_play.sh <bag_path>
 ## Contributing
 
 Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for:
+
 - Code style guidelines
 - How to add new nodes
 - Testing requirements

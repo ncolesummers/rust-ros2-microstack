@@ -29,16 +29,19 @@ Flow: External sources → Sensor Filter → Perception
 ### Component Responsibilities
 
 **Safety Watchdog** (`nodes/safety_watchdog`)
+
 - **Purpose**: Emergency stop on heartbeat timeout
 - **Pattern**: Timeout-based safety interlock
 - **Key Learning**: Timer-based logic, QoS profiles (best_effort vs reliable)
 
 **Teleop Mux** (`apps/teleop_mux`)
+
 - **Purpose**: Arbitrate between manual and autonomous control
 - **Pattern**: Priority-based message selection
 - **Key Learning**: Multi-subscription, clap configuration, tokio concurrency
 
 **Sensor Filter** (`apps/sensor_filter`)
+
 - **Purpose**: Clamp lidar outliers for stable perception
 - **Pattern**: Stateless message transformation
 - **Key Learning**: sensor_msgs handling, metadata preservation, benchmarking
@@ -68,12 +71,14 @@ Flow: External sources → Sensor Filter → Perception
 ### Trade-offs
 
 **Advantages:**
+
 - Ergonomic async/await patterns for node logic
 - Excellent interop with tokio ecosystem (tracing, anyhow, etc.)
 - Minimal boilerplate compared to rclrs
 - Strong community examples and documentation
 
 **Disadvantages:**
+
 - Not the official ROS2 Rust binding (rclrs is)
 - Smaller community than rclcpp or rclpy
 - Some advanced rcl features may lag behind C++ API
@@ -86,11 +91,13 @@ For this portfolio project, r2r's ergonomics and async-first design make it idea
 ### Binary vs Library Crates
 
 **nodes/** are **libraries** with logic exposed for:
+
 - Unit testing without spawning processes
 - Reuse across multiple binaries
 - Example: `safety_watchdog` could be imported by integration tests
 
 **apps/** are **binaries** meant to:
+
 - Be run directly via `cargo run`
 - Provide user-facing CLI interfaces
 - Example: `teleop_mux` is an end-user tool
@@ -100,10 +107,12 @@ This mixed structure balances testability and clarity.
 ### When to Use tokio vs r2r Spin
 
 **Use r2r's event loop (spin)** when:
+
 - Node logic is purely reactive (callbacks only)
 - Simple pub/sub without complex async coordination
 
 **Use tokio runtime** when:
+
 - Timeout detection (safety_watchdog)
 - Concurrent subscriptions with selection logic (teleop_mux)
 - Integration with async Rust libraries (HTTP clients, databases)
@@ -113,11 +122,13 @@ All nodes in this project use **tokio** to demonstrate async patterns.
 ### QoS Profile Selection
 
 **Best Effort** (safety_watchdog heartbeat subscriber):
+
 - Low latency, tolerates packet loss
 - Suitable for high-rate health monitoring
 - Missed heartbeat triggers safety action anyway
 
 **Reliable** (all publishers, most subscribers):
+
 - Guaranteed delivery (retries on packet loss)
 - Depth 10: Handles temporary subscriber lag
 - Standard for command and sensor topics
@@ -143,6 +154,7 @@ workspace/
 ## Technology Choices
 
 ### Core Stack
+
 - **r2r**: ROS2 bindings
 - **tokio**: Async runtime (matches r2r's async model)
 - **tracing**: Structured logging (better than println!, integrates with ROS2 ecosystems)
@@ -150,10 +162,12 @@ workspace/
 - **clap**: CLI parsing (derive macros for maintainability)
 
 ### Testing
+
 - **criterion**: Micro-benchmarking (sensor_filter performance)
 - **tokio::time::pause**: Deterministic async testing (watchdog timeout tests)
 
 ### Observability
+
 - **tracing-subscriber**: Configurable log output (RUST_LOG env var)
 - Future: OpenTelemetry integration for distributed tracing
 
