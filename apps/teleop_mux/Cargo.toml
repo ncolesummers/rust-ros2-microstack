@@ -9,3 +9,4 @@ r2r = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
+rust-ros2-microstack = { path = "../.." }

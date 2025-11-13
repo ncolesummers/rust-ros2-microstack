@@ -20,11 +20,12 @@ use anyhow::Result;
 use futures::{executor::LocalPool, stream::StreamExt, task::LocalSpawnExt};
 use r2r::QosProfile;
 use r2r::example_interfaces::srv::AddTwoInts;
+use rust_ros2_microstack::logging;
 use tracing::{info, warn};
 
 fn main() -> Result<()> {
-    // Initialize tracing for structured logging
-    tracing_subscriber::fmt::init();
+    // Initialize structured logging with OpenTelemetry support
+    logging::init();
 
     info!("Starting basic_service example");
 

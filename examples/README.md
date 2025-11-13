@@ -34,6 +34,28 @@ cargo run --example hello_publisher
 cargo run --example hello_subscriber
 ```
 
+## Logging
+
+All examples use structured logging with OpenTelemetry support. Configure via environment variables:
+
+```bash
+# Show debug logs
+RUST_LOG=debug cargo run --example hello_publisher
+
+# JSON output (for log aggregation)
+LOG_FORMAT=json cargo run --example hello_publisher
+
+# OpenTelemetry export (requires collector)
+LOG_FORMAT=otlp OTLP_ENDPOINT=http://localhost:4317 cargo run --example hello_publisher
+```
+
+**See [docs/logging.md](../docs/logging.md) for comprehensive documentation** including:
+
+- All configuration options
+- Output format examples
+- Distributed tracing setup
+- Best practices
+
 ## Learning Path
 
 We recommend following this order:

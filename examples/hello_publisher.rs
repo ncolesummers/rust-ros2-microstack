@@ -21,11 +21,12 @@
 use anyhow::Result;
 use futures::{executor::LocalPool, task::LocalSpawnExt};
 use r2r::{QosProfile, std_msgs::msg::String as StringMsg};
+use rust_ros2_microstack::logging;
 use tracing::{info, warn};
 
 fn main() -> Result<()> {
-    // Initialize tracing for structured logging
-    tracing_subscriber::fmt::init();
+    // Initialize structured logging with OpenTelemetry support
+    logging::init();
 
     info!("Starting hello_publisher example");
 
