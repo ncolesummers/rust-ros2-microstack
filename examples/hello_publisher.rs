@@ -22,7 +22,6 @@ use anyhow::Result;
 use futures::{executor::LocalPool, task::LocalSpawnExt};
 use r2r::{QosProfile, std_msgs::msg::String as StringMsg};
 use tracing::{info, warn};
-use tracing_subscriber;
 
 fn main() -> Result<()> {
     // Initialize tracing for structured logging

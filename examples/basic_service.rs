@@ -21,7 +21,6 @@ use futures::{executor::LocalPool, stream::StreamExt, task::LocalSpawnExt};
 use r2r::QosProfile;
 use r2r::example_interfaces::srv::AddTwoInts;
 use tracing::{info, warn};
-use tracing_subscriber;
 
 fn main() -> Result<()> {
     // Initialize tracing for structured logging
@@ -61,30 +60,25 @@ fn main() -> Result<()> {
     // Spawn a task to handle service requests
     // This runs concurrently with the client calls
     spawner.spawn_local(async move {
-        loop {
-            // Wait for incoming service requests
-            match service.next().await {
-                Some(service_request) => {
-                    // Extract the request message
-                    let request = &service_request.message;
+        // Wait for incoming service requests
+        while let Some(service_request) = service.next().await {
+            // Extract the request message
+            let request = &service_request.message;
 
-                    // Process the request: add two integers
-                    let result = request.a + request.b;
+            // Process the request: add two integers
+            let result = request.a + request.b;
 
-                    info!(
-                        a = request.a,
-                        b = request.b,
-                        result = result,
-                        "Processing service request"
-                    );
+            info!(
+                a = request.a,
+                b = request.b,
+                result = result,
+                "Processing service request"
+            );
 
-                    // Send the response back to the client
-                    let response = AddTwoInts::Response { sum: result };
-                    if let Err(e) = service_request.respond(response) {
-                        warn!(error = %e, "Failed to send response");
-                    }
-                }
-                None => break,
+            // Send the response back to the client
+            let response = AddTwoInts::Response { sum: result };
+            if let Err(e) = service_request.respond(response) {
+                warn!(error = %e, "Failed to send response");
             }
         }
     })?;

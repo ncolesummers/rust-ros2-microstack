@@ -17,10 +17,9 @@
 //! publisher that also monitors for timeout conditions.
 
 use anyhow::Result;
-use futures::{executor::LocalPool, select, task::LocalSpawnExt, FutureExt};
+use futures::{FutureExt, executor::LocalPool, select, task::LocalSpawnExt};
 use r2r::{QosProfile, std_msgs::msg::Empty};
 use tracing::{info, warn};
-use tracing_subscriber;
 
 fn main() -> Result<()> {
     // Initialize tracing for structured logging
