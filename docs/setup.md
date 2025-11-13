@@ -311,17 +311,59 @@ export RUST_LOG=info
 
 ### Pre-commit Hooks
 
-Install pre-commit to run `cargo fmt` and `cargo clippy` before commits:
+Pre-commit hooks automatically run code quality checks before each commit, reducing CI failures and maintaining consistent code quality.
+
+**What gets checked:**
+
+- `cargo fmt` - Formats all Rust code
+- `cargo clippy` - Lints code and catches common mistakes
+- Additional checks - Trailing whitespace, YAML/TOML syntax, merge conflicts
+
+**Installation:**
 
 ```bash
-# Install pre-commit (requires Python)
-pipx install pre-commit
+# Install pre-commit (requires Python 3.8+)
+uv tool install pre-commit
+uv tool update-shell
 
-# Install hooks
+# Install the hooks into your local repository
+cd /path/to/rust-ros2-microstack
 pre-commit install
+```
 
-# Test
+**Usage:**
+
+```bash
+# Hooks run automatically on git commit
+git commit -m "your message"
+
+# Run manually on all files
 pre-commit run --all-files
+
+# Run manually on staged files only
+pre-commit run
+
+# Skip hooks temporarily (use sparingly!)
+git commit --no-verify -m "your message"
+```
+
+**Troubleshooting:**
+
+If `cargo clippy` fails in pre-commit but works normally:
+
+```bash
+# Ensure ROS2 environment is sourced
+source /opt/ros/jazzy/setup.bash  # or setup.zsh
+
+# Run pre-commit again
+pre-commit run --all-files
+```
+
+**Updating hooks:**
+
+```bash
+# Update to latest hook versions
+pre-commit autoupdate
 ```
 
 ### IDE Setup

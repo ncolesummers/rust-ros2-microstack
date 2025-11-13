@@ -140,10 +140,18 @@ cargo fmt --check
 
 # Lints
 cargo clippy --workspace --all-targets -- -D warnings
-
-# Optional: Install pre-commit hooks
-# See docs/setup.md for instructions
 ```
+
+**Pre-commit hooks (optional but recommended):**
+
+Automatically run format and lint checks before each commit:
+
+```bash
+pipx install pre-commit
+pre-commit install
+```
+
+See [docs/setup.md](docs/setup.md#pre-commit-hooks) for detailed instructions and troubleshooting.
 
 ### Recording and Replaying ROS Bags
 

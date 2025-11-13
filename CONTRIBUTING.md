@@ -70,6 +70,20 @@ cargo clippy --workspace --all-targets -- -D warnings
 
 **Exception**: If a clippy lint is incorrect, use `#[allow(clippy::lint_name)]` with a comment explaining why.
 
+### Pre-commit Hooks (Recommended)
+
+**Use pre-commit hooks** to catch formatting and lint issues early:
+
+```bash
+# One-time setup
+pipx install pre-commit
+pre-commit install
+
+# Hooks will now run automatically on git commit
+```
+
+This runs `cargo fmt` and `cargo clippy` before each commit, preventing CI failures. See [docs/setup.md](docs/setup.md#pre-commit-hooks) for details.
+
 ### Naming Conventions
 
 - **Crates**: `snake_case` (e.g., `safety_watchdog`, `sensor_filter`)
