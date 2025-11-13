@@ -26,6 +26,7 @@ Complete setup instructions and troubleshooting for the Rust ROS2 Microstack.
 Follow the official guide: [ROS2 Jazzy Installation](https://docs.ros.org/en/jazzy/Installation.html)
 
 **Ubuntu Quick Install:**
+
 ```bash
 # Set locale
 sudo apt update && sudo apt install locales
@@ -52,6 +53,7 @@ sudo apt install ros-dev-tools
 ```
 
 **Verify installation:**
+
 ```bash
 source /opt/ros/jazzy/setup.bash
 ros2 --version
@@ -77,6 +79,7 @@ rustup default stable
 ```
 
 **Check edition 2024 support:**
+
 ```bash
 rustc --version
 # Should be 1.85.0 or newer for edition 2024
@@ -131,16 +134,19 @@ cargo run -p apps/teleop_mux -- --help
 ### Environment Setup
 
 **Option 1: Manual sourcing (each terminal)**
+
 ```bash
 source /opt/ros/jazzy/setup.bash
 ```
 
 **Option 2: Use project script (recommended)**
+
 ```bash
 source scripts/dev_env.sh
 ```
 
 **Option 3: Auto-source in shell RC (permanent)**
+
 ```bash
 # Add to ~/.bashrc or ~/.zshrc
 echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
@@ -148,6 +154,7 @@ source ~/.bashrc
 ```
 
 **Verify ROS2 environment is loaded:**
+
 ```bash
 env | grep ROS
 # Should see ROS_VERSION=2, ROS_DISTRO=jazzy, etc.
@@ -164,6 +171,7 @@ env | grep ROS
 **Cause**: ROS2 environment not sourced before build.
 
 **Fix**:
+
 ```bash
 source /opt/ros/jazzy/setup.bash
 cargo clean
@@ -175,6 +183,7 @@ cargo build
 **Cause**: Missing ROS2 development packages.
 
 **Fix**:
+
 ```bash
 sudo apt install ros-jazzy-ros-core ros-dev-tools
 ```
@@ -184,6 +193,7 @@ sudo apt install ros-jazzy-ros-core ros-dev-tools
 **Cause**: Rust toolchain too old.
 
 **Fix**:
+
 ```bash
 rustup update stable
 rustc --version  # Verify >= 1.85.0
@@ -196,6 +206,7 @@ rustc --version  # Verify >= 1.85.0
 **Cause**: Binary crate not specified correctly.
 
 **Fix**:
+
 ```bash
 # For apps (binaries)
 cargo run -p apps/teleop_mux
@@ -211,6 +222,7 @@ cargo run -p apps/teleop_mux
 **Cause**: QoS policy mismatch.
 
 **Debug**:
+
 ```bash
 # Check topic info
 ros2 topic info /topic_name -v
@@ -225,6 +237,7 @@ ros2 topic info /topic_name -v
 **Cause**: Multiple r2r contexts or conflicting DDS configuration.
 
 **Fix**:
+
 ```bash
 # Clear DDS environment
 unset RMW_IMPLEMENTATION
@@ -238,12 +251,14 @@ export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 #### Gazebo doesn't start
 
 **Check installation**:
+
 ```bash
 gz sim --version
 ros2 pkg list | grep ros_gz
 ```
 
 **If missing**:
+
 ```bash
 sudo apt install ros-jazzy-ros-gz-sim
 ```
@@ -253,6 +268,7 @@ sudo apt install ros-jazzy-ros-gz-sim
 **Cause**: Gazebo not started with ROS2 bridge.
 
 **Fix**:
+
 ```bash
 # Start with bridge
 ros2 launch ros_gz_sim gz_sim.launch.py gz_args:="shapes.sdf"
@@ -266,6 +282,7 @@ bash scripts/sim_smoke.sh
 #### Error: `Permission denied` when running scripts
 
 **Fix**:
+
 ```bash
 chmod +x scripts/*.sh
 ```
@@ -277,11 +294,13 @@ chmod +x scripts/*.sh
 **Cause**: `RUST_LOG` not set.
 
 **Fix**:
+
 ```bash
 RUST_LOG=info cargo run -p apps/teleop_mux
 ```
 
 **Set globally** (add to `~/.bashrc`):
+
 ```bash
 export RUST_LOG=info
 ```
@@ -310,11 +329,13 @@ pre-commit run --all-files
 **VS Code (recommended)**
 
 Install extensions:
+
 - rust-analyzer
 - CodeLLDB (for debugging)
 - ROS (for launch files, URDF syntax)
 
 **Settings** (`.vscode/settings.json`):
+
 ```json
 {
   "rust-analyzer.cargo.features": "all",
@@ -332,12 +353,14 @@ Settings → Languages & Frameworks → Rust → External Linter: `clippy`
 ### Debugging
 
 **GDB with Rust symbols:**
+
 ```bash
 cargo build
 rust-gdb target/debug/teleop_mux
 ```
 
 **ROS2 topic inspection:**
+
 ```bash
 # List all topics
 ros2 topic list
